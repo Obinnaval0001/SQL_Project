@@ -1,0 +1,244 @@
+create database cars;
+
+use cars;
+
+create table car_sales (
+years int,	
+make text,	
+model text,	
+trim text,	
+body text,	
+transmission text,	
+vin text,
+state text,	
+conditions int,	
+odometer int,	
+color text,	
+interior text,	
+seller text,	
+mmr	int,
+sellingprice int,	
+saledate text 
+);
+
+SET GLOBAL LOCAL_INFILE=ON;
+LOAD DATA LOCAL INFILE 'C:/Users/USER/Desktop/Data/car_sales1/car_prices.csv' INTO TABLE car_sales
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 ROWS;
+
+drop table car_sales_v
+
+select * from car_sales_v;
+
+-- let create a clean temporary table for our analysis
+
+create temporary table car_sales_v as
+select
+*,
+MID(saledate, 12, 4) as sale_year,
+MID(saledate, 5, 3) as sale_monthname,
+MID(saledate, 9, 2) as sale_day,
+cast(case MID(saledate, 5, 3)
+	WHEN 'Jan' THEN 1
+	WHEN 'Feb' THEN 2
+	WHEN 'Mar' THEN 3
+	WHEN 'Apr' THEN 4
+	WHEN 'May' THEN 5
+	WHEN 'Jun' THEN 6
+	WHEN 'Jul' THEN 7
+	WHEN 'Aug' THEN 8
+	WHEN 'Sep' THEN 9
+	WHEN 'Oct' THEN 10
+	WHEN 'Nov' THEN 11
+	WHEN 'Dec' THEN 12
+	ELSE null
+END as unsigned) as sale_month
+from car_sales
+where body != 'Navitgation'
+and make != '' and saledate != ''; 
+  
+-- Let us answer some business questions.
+ 
+-- 1. How meny car are sold in each state?
+
+select
+state,
+count(*) as num_count
+from car_sales_v
+group by state;
+
+
+-- 2. Which kind of cars are more popular and how maney sales are being made for each make and model?
+
+select
+make,
+model,
+count(*) as num_count
+from car_sales_v
+group by make, model
+order by 3 desc;
+
+
+-- 3. Are they difference in sales price for each state and what is average difference for sales price for each state?
+
+select
+state,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by state
+order by 2 asc;
+
+-- 4. What is the average sales price for cars sold for each month and year?
+select * from car_sales_v;
+
+select
+sale_year,
+sale_month,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by 1, 2
+order by 1, 2; 
+
+-- 5. Which month of year have the highest sales?
+
+select 
+sale_month,
+count(*) as num_sales
+from car_sales_v
+group by 1
+order by 1 asc;
+
+-- 6. What are the top 5 of most selling car within a body types, we will like to see make, model, body and number of sales?
+
+select
+make, 
+model,
+body,
+num_sales,
+body_rank
+from (
+	select
+    make,
+    model,
+    body,
+    count(*) as num_sales,
+    rank() over(partition by body order by count(*) desc) as body_rank
+    from car_sales_v
+    group by 1,2,3
+)s
+where body_rank <= 5;
+
+-- 7. What are sales higher than average for the model and how much high it is?
+select
+make,
+model,
+vin,
+sale_year,
+sale_month,
+sale_day,
+sellingprice,
+avg_model,
+sellingprice/avg_model as price_ratio
+from (
+	select
+	make,
+	model,
+	vin,
+	sale_year,
+	sale_month,
+	sale_day,
+	sellingprice,
+	avg(sellingprice) over(partition by make, model) as avg_model
+	from car_sales_v
+)s
+where sellingprice > avg_model
+order by 9 desc;
+
+-- 8. How has the condition impacted on the price and how many are sold?
+
+select
+case
+	when conditions between 0 and 9 then '0 to 9'
+    when conditions between 10 and 19 then '10 to 19'
+    when conditions between 20 and 29 then '20 to 29'
+    when conditions between 30 and 39 then '30 to 39'
+    when conditions between 40 and 49 then '40 to 49'
+end as car_condition_bucket,
+count(*) as num_sales,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by 1
+order by 1;
+
+-- 10. How has the odometer values impacted the selling price?
+
+select
+case
+	when odometer < 100000 then '0 - 99,999'
+	when odometer < 200000 then '100,000 - 199,999'
+	when odometer < 300000 then '200,000 - 299,999'
+	when odometer < 400000 then '300,000 - 399,999'
+	when odometer < 500000 then '400,000 - 499,999'
+	when odometer < 600000 then '500,000 - 599,999'
+	when odometer < 700000 then '600,000 - 699,999'
+	when odometer < 800000 then '700,000 - 799,999'
+	when odometer < 900000 then '800,000 - 899,999'
+	when odometer < 1000000 then '900,000 - 999,999'
+end as odometer_bucket,
+count(*) as num_sales,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by 1
+order by 1;
+
+-- 11. What is the max and min selling price for eash car make and sales count?
+
+select
+make,
+count(distinct model) as num_models,
+count(*) as num_sales,
+min(sellingprice) as min_price,
+max(sellingprice) as max_price,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by 1
+order by 6 desc;
+
+-- 12. Are there any car sold more then one and what are the details?
+
+select
+*
+from (
+	select
+    *,
+count(*) over(partition by vin) as vin_sales
+from car_sales_v
+)s 
+where vin_sales > 1;
+
+-- 12. Top 10 seller 
+
+select
+seller,
+sum(sellingprice) as total_sales,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+group by 1
+order by 3 desc
+limit 10;
+
+-- 13. How have the car make and interior impacted on the price?
+
+select
+make,
+interior,
+count(*) as num_sales,
+avg(sellingprice) as avg_selling_price
+from car_sales_v
+where interior != '' and interior != '-'
+group by 1, 2
+order by 4 desc;
+
+select * from car_sales_v
