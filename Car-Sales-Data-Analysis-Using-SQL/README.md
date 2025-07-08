@@ -203,12 +203,12 @@ order by 4 desc;
 ```
 ## Findings and Conclusion
 #### The findings from the analysis include:
-State-wise Sales: There are notable differences in car sales across different states, with certain regions showing higher sales volumes. This trend could be influenced by local demand, demographics, and economic conditions.
-Popular Cars: The analysis revealed the top-selling car makes and models. Popularity varies by region and car type, indicating that consumer preferences differ across different markets.
-Sales Price Trends: States exhibit variations in the average selling price of cars. Understanding these price differences can help manufacturers and sellers adjust their strategies accordingly.
-Seasonality: Sales are influenced by seasonal factors, with certain months showing higher sales than others. This could be valuable for marketing campaigns and inventory management.
-Body Type Preferences: Certain car body types outperform others in terms of sales, suggesting that some categories, like SUVs or sedans, are preferred more frequently.
-Impact of Condition and Odometer: Cars with better conditions and lower odometer readings generally command higher prices, which aligns with consumer preferences for newer or well-maintained vehicles. 
+* State-wise Sales: There are notable differences in car sales across different states, with certain regions showing higher sales volumes. This trend could be influenced by local demand, demographics, and economic conditions.
+* Popular Cars: The analysis revealed the top-selling car makes and models. Popularity varies by region and car type, indicating that consumer preferences differ across different markets.
+* Sales Price Trends: States exhibit variations in the average selling price of cars. Understanding these price differences can help manufacturers and sellers adjust their strategies accordingly.
+* Seasonality: Sales are influenced by seasonal factors, with certain months showing higher sales than others. This could be valuable for marketing campaigns and inventory management.
+* Body Type Preferences: Certain car body types outperform others in terms of sales, suggesting that some categories, like SUVs or sedans, are preferred more frequently.
+* Impact of Condition and Odometer: Cars with better conditions and lower odometer readings generally command higher prices, which aligns with consumer preferences for newer or well-maintained vehicles. 
 
 #### Conclusion: 
 The analysis provides valuable insights into consumer behavior and sales patterns within the automotive industry. By understanding these trends, businesses can tailor their strategies to optimize sales, adjust pricing models, and identify target markets more effectively. The findings also offer a foundation for further analysis and decision-making in areas like inventory management, marketing, and customer targeting.
